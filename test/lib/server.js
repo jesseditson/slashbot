@@ -1,21 +1,22 @@
 /* global describe,before,after,it */
 var assert = require('assert')
 var request = require('supertest')
-var app = require('../../lib/server')
+var startServer = require('../../lib/server')
 
 describe('server', function () {
-  var server
+  var server, app
 
   before(function (ready) {
     // start up our server
-    app.set('port', process.env.PORT || 3000)
-    server = app.listen(app.get('port'), function () {
+    var server = startServer(function(err,a){
+      assert.ifError(err)
+      app = a
       ready()
     })
   })
 
   after(function () {
-    server.close()
+    if(server) server.close()
   })
 
   it('should serve a status page at /', function (done) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var app = require('../lib/server')
+var startServer = require('../lib/server')
 var debug = require('debug')('slasbot:server')
 var argv = require('minimist')(process.argv.slice(2), {
   alias: {
@@ -7,10 +7,12 @@ var argv = require('minimist')(process.argv.slice(2), {
   }
 })
 
+var name = require('../package.json').name
+
 if (require.main === module) {
   argv.port = argv.port || process.env['PORT']
-  startServer(argv, function () {
-    debug('%s listening on port %s',name,server.addresss().port)
+  var server = startServer(argv, function () {
+    debug('%s listening on port %s',name,argv.port)
   })
 } else {
   throw new Error('bin/www was not meant to be required directly. Require this module or the lib/server.js module directly.')

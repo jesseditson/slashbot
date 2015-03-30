@@ -1,9 +1,9 @@
 {
   "name": "slashbot",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A hubot-like robot for slack rooms",
   "main": "lib/server.js",
-  "bin" : "./bin/server",
+  "bin": "./bin/server",
   "keywords": "hubot, slashbot, slack, bot",
   "scripts": {
     "start": "DEBUG=slashbot:* ./bin/server",

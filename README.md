@@ -175,7 +175,9 @@ _(inside of the slashbot-example fork):_
 
 ```shell
 $ heroku create myapp
+$ heroku config:set SLASHBOT_TOKENS=whatever SLASHBOT_WEBHOOK_URL=whatever DEBUG=slashbot*
 $ git push heroku
+$ heroku ps:scale web=1
 ```
 
 _update url in all slash commands_

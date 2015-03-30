@@ -5,7 +5,7 @@ A hubot-like chat bot for slack.
 [![Npm Version](https://npmjs.com/packages/slasbot)](https://img.shields.io/npm/v/npm.svg)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
 
-##How to set up a slashbot
+##Basic Usage (how to set up your slashbot)
 -----
 
 - Fork the [example repo](https://github.com/jesseditson/slashbot-example) (https://github.com/jesseditson/slashbot-example).
@@ -72,3 +72,115 @@ Your debug log should tell you that it has started slashbot, and print out some 
 - Now that your bot is running, head over to your slack chat room and @message your new bot. You'll notice that the debug log will print out some info about the cleverbot transaction, and your bot should respond to you:
 
 ![Response](http://oi.pxfx.io/image/1s0W1e1a0s3l/Image%202015-03-29%20at%204.43.58%20PM.png)
+
+##Adding slash commands
+----
+
+We mentioned that we'd be adding slash commands to our bot earlier. Slash commands are cool because they automatically show up in the context menu when hitting `/`. Slash commands are better than responders for doing things that have business utility like `/deploy`, because they come with free documentation, and they are easy to remember (just hit `/`, and you'll see all your installed slash commands).
+
+- For this example, we'll install a slash command to get an animated gif from google. Just like a listener, we can go to our repo and install it:
+
+```shell
+$ npm install --save slashbot-animate
+```
+
+- This will install an `/animate` route on our server, that slack will be able to hit with a slash command now.
+
+- To enable a slash command, head back to your slack settings, and add a slash commands integration.
+
+![New Command](http://oi.pxfx.io/image/1o2K0W3k0v47)
+
+- On the next page, there's a form. We'll want to get the token from this page, and start our server, whitelisting this token for the animate command:
+
+```
+$ DEBUG=slashbot* SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token SLASHBOT_WEBHOOK_URL=webook-url ./node_modules/slashbot/bin/server --name=slashbot --port=3000
+```
+
+The important part of the above line is: `SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token`. The `SLASHBOT_TOKENS` environment variable is where you will define all your whitelisted access tokens for different scripts. It is a comma separated list in the format of `key:value`. After you've started your server, we'll need to expose our local server to the web. I'll use [ngrok](https://ngrok.com/) to do this.
+
+In a new terminal window (leave your slashbot server running), start up ngrok.
+
+```shell
+$ ngrok 3000
+```
+
+Ngrok will tell you where your server can be accessed (something like `http://djksjds.ngrok.com`). Copy this URL, and head back to your slack settings.
+
+- Enter your ngrok url as the URL for this slash command. It'll look something like this when you're done:
+
+![Slash URL](http://oi.pxfx.io/image/3S3A2Q3S3g0f/Image%202015-03-29%20at%206.00.29%20PM.png)
+
+- Optionally, you can go down and expand the information on what this command does. This is where you can enable & configure what shows up inside of slack's autocomplete when a user types `/`.
+
+- Once you've saved your integration, you'll be able to type `/animate something`, and the animate command will post an animated gif for you.
+
+##Configuration
+---
+
+Slashbot has 2 configuration concepts: public configuration, which are things like the bot name, and private configuration, which are things like access tokens.
+
+**Public configuration**
+
+Public configuration is passed in to the bot when instantiating. If you look at [slashbot-example](https://github.com/jesseditson/slashbot-example), you'll see that the main file passes in a name. You can also pass in a default icon, which can be an :emoji: or a url.
+
+Additionally, you can pass in some base configuration options:
+
+• port - sets the server port
+• responders - an array of files to require as responders. Use this to create your own responders.
+
+A fully configured server would look like this:
+
+```javascript
+slashbot({
+  name : 'slashbot',
+  icon : ':ghost:',
+  port : 3000,
+  responders : [
+    './responders/shout'
+  ]
+},function(err){
+  if(err) throw err
+  // your bot is now started.
+})
+```
+
+**Private configuration**
+
+Private configuration is all read from the environment. So locally, you'd configure your app like the above examples - just setting variables when starting the server.
+
+In production, it will vary from system to system how you set these variables. This convention works very well though for systems like heroku which expect private variables to live in the environment.
+
+The configurable variables are:
+
+• SLASHBOT_TOKENS - required.
+
+This environment variable is defined as a set of key-value pairs. keys and values are defined `name:token`, and separated by commas.
+
+This must have at least 1 token, `slashbot`. This will be the token that you find in your `bot` integration on slack.
+
+There must also be one token per slash command defined. The key is the name of the command (for instance, `slashbot-animate`), and the value is the token found in the slack configuration for that command.
+
+• SLASHBOT_WEBHOOK_URL - required if using any slash commands
+
+The webhook url that is available from the `incoming-webhooks` integration.
+
+Because this package uses `debug`, you can turn on more verbose logging by specifying `DEBUG=slashbot*`.
+
+##Deployment
+---
+
+// TODO: expand the docs on deployment
+
+_(inside of the slashbot-example fork):_
+
+```shell
+$ heroku create myapp
+$ git push heroku
+```
+
+_update url in all slash commands_
+
+##Custom responders
+---
+
+// TODO:

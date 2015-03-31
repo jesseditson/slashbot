@@ -1,8 +1,8 @@
 # slashbot
 A hubot-like chat bot for slack.
 
-[![Build Status](https://travis-ci.org/jesseditson/slashbot.svg?branch=master)](https://travis-ci.org/jesseditson/slashbot)
-[![Npm Version](https://npmjs.com/packages/slasbot)](https://img.shields.io/npm/v/npm.svg)
+[![Build Status](https://img.shields.io/travis/jesseditson/slashbot.svg?style=flat-square)](https://travis-ci.org/jesseditson/slashbot)
+[![Npm Version](https://img.shields.io/npm/v/slashbot.svg?style=flat-square)](https://npmjs.com/packages/slashbot)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
 
 ##Basic Usage (how to set up your slashbot)
@@ -30,7 +30,7 @@ $ cd slashbot-example
   2. the `incoming webhooks` integration. This is used by slashbot to post things to slack. It will mostly be used in conjunction with slashbot commands, and is a prerequisite to using any slashbot commands at all.
   3. the `slash commands` integration. This is used to add new slash commands to slack. When you type `/`, you see a list of commands slack provides by default. We can create our own (or use open source) slashbot commands and wire them up using this integration.
 
-  ![Required Integrations](http://oi.pxfx.io/image/3F1l3m2a321r)
+  ![Required Integrations](http://oi.pxfx.io/image/3F1l3m2a321r/slashbot-integrations.png)
 
   We'll talk more about slash commands later in this guide. For now, let's get a slashbot server running and talking to us.
 
@@ -38,7 +38,7 @@ $ cd slashbot-example
 
   When you add a new bot, you'll be first asked to name it.
 
-  ![Bot Name](http://oi.pxfx.io/image/032P1O0F2l0y)
+  ![Bot Name](http://oi.pxfx.io/image/032P1O0F2l0y/Image%202015-03-29%20at%2012.33.17%20PM.png)
 
   Then, you'll be taken to the bot settings. From here you can further customize the bot, but the main thing we need is the 'API Token'.
   Copy the api token - we'll refer to this as the `Bot API Token` from now on.
@@ -88,7 +88,7 @@ $ npm install --save slashbot-animate
 
 - To enable a slash command, head back to your slack settings, and add a slash commands integration.
 
-![New Command](http://oi.pxfx.io/image/1o2K0W3k0v47)
+![New Command](http://oi.pxfx.io/image/1o2K0W3k0v47/Image%202015-03-29%20at%205.52.59%20PM.png)
 
 - On the next page, there's a form. We'll want to get the token from this page, and start our server, whitelisting this token for the animate command:
 

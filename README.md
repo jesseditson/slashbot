@@ -5,7 +5,7 @@ A hubot-like chat bot for slack.
 [![Npm Version](https://img.shields.io/npm/v/slashbot.svg?style=flat-square)](https://npmjs.com/packages/slashbot)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
 
-##Basic Usage (how to set up your slashbot)
+Basic Usage (how to set up your slashbot)
 -----
 
 - Fork the [example repo](https://github.com/jesseditson/slashbot-example) (https://github.com/jesseditson/slashbot-example).
@@ -60,10 +60,10 @@ $ npm install --save slashbot-clever
 - To see this in action, all we have to do is start the server using our credentials. Head to your repo and run the following (replacing `bot-api-token` with your Bot API Token, and replacing `webhook-url` with your Webhook URL from above.):
 
 ```bash
-$ DEBUG=slashbot* SLASHBOT_TOKENS=slashbot:bot-api-token SLASHBOT_WEBHOOK_URL=webook-url ./node_modules/slashbot/bin/server --name=slashbot --port=3000
+$ DEBUG=slashbot* SLASHBOT_TOKENS=slashbot:bot-api-token SLASHBOT_WEBHOOK_URL=webook-url ./slashbot
 ```
 
-Some of the options defined above (debug, name, port) are purely illustrative, but you can see that you could rename your bot if you liked, or change the port the server runs on.
+The `DEBUG` environment variable tells slashbot to print all slashbot-related debug logs out. You could be more specific, for instance using `DEBUG=slashbot:respond` or `DEBUG=slashbot-clever*` to have it print only the respond module or the slashbot-clever responder logs.
 
 Your debug log should tell you that it has started slashbot, and print out some useful info. Something like this:
 
@@ -73,7 +73,7 @@ Your debug log should tell you that it has started slashbot, and print out some 
 
 ![Response](http://oi.pxfx.io/image/1s0W1e1a0s3l/Image%202015-03-29%20at%204.43.58%20PM.png)
 
-##Adding slash commands
+Adding slash commands
 ----
 
 We mentioned that we'd be adding slash commands to our bot earlier. Slash commands are cool because they automatically show up in the context menu when hitting `/`. Slash commands are better than responders for doing things that have business utility like `/deploy`, because they come with free documentation, and they are easy to remember (just hit `/`, and you'll see all your installed slash commands).
@@ -93,7 +93,7 @@ $ npm install --save slashbot-animate
 - On the next page, there's a form. We'll want to get the token from this page, and start our server, whitelisting this token for the animate command:
 
 ```
-$ DEBUG=slashbot* SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token SLASHBOT_WEBHOOK_URL=webook-url ./node_modules/slashbot/bin/server --name=slashbot --port=3000
+$ DEBUG=slashbot* SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token SLASHBOT_WEBHOOK_URL=webook-url ./slashbot
 ```
 
 The important part of the above line is: `SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token`. The `SLASHBOT_TOKENS` environment variable is where you will define all your whitelisted access tokens for different scripts. It is a comma separated list in the format of `key:value`. After you've started your server, we'll need to expose our local server to the web. I'll use [ngrok](https://ngrok.com/) to do this.
@@ -114,7 +114,7 @@ Ngrok will tell you where your server can be accessed (something like `http://dj
 
 - Once you've saved your integration, you'll be able to type `/animate something`, and the animate command will post an animated gif for you.
 
-##Configuration
+Configuration
 ---
 
 Slashbot has 2 configuration concepts: public configuration, which are things like the bot name, and private configuration, which are things like access tokens.
@@ -166,23 +166,101 @@ The webhook url that is available from the `incoming-webhooks` integration.
 
 Because this package uses `debug`, you can turn on more verbose logging by specifying `DEBUG=slashbot*`.
 
-##Deployment
+Deployment
 ---
 
-// TODO: expand the docs on deployment
+Deploying slashbot is an identical process to deploying any http webserver, so it can run on almost any hosting environment. The simplest way if you already have a heroku account is to deploy to a free heroku server.
 
-_(inside of the slashbot-example fork):_
+**deploying on heroku:**
 
-```shell
-$ heroku create myapp
-$ heroku config:set SLASHBOT_TOKENS=whatever SLASHBOT_WEBHOOK_URL=whatever DEBUG=slashbot*
-$ git push heroku
-$ heroku ps:scale web=1
+To deploy to heroku, you'll need to do a few things:
+
+1. Create a Procfile
+2. Create a new heroku app
+3. Point your slash commands at the heroku app
+4. Configure your private environment variables
+5. Deploy & scale your heroku app
+
+Let's go ahead and do that.
+
+- First, set up your Procfile. If you've cloned the slashbot-example repo, there's already a Procfile in the root of your repo, and you don't have to do anything to it. If you need to make one, the only thing it needs to contain is the following:
+
+```
+web: ./slashbot
 ```
 
-_update url in all slash commands_
+This will tell heroku to run `./slashbot` and expect it to connect to `$PORT` when it starts. Make sure you're not overriding the `port` option in the `slashbot` file and you'll be good to go.
 
-##Custom responders
+- Now, create a new heroku app. Make sure you have the [heroku toolbelt](https://toolbelt.heroku.com/) installed, then run the following from your repo:
+
+```shell
+$ heroku create <yourappname>
+```
+
+If this name is not taken, heroku will respond with your new domain name. It will be something like `http://yourappname.herokuapp.com`.
+
+- Now, go back to your integration settings, and point all your slash commands at this new endpoint for instance, if you were pointing to `http://foo.ngrok.com/animate`, you'll change it to `https://yourappname.herokuapp.com/animate`. From now on, except when testing, you'll want to make sure all your slash commands always point there.
+
+- Finally, go back to the command line, and load all your private environment variables into your heroku app. You'll want to configure at least the webhook url and the slashbot tokens, along with any responder-specific config variables.
+
+```shell
+$ heroku config:add SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token SLASHBOT_WEBHOOK_URL=webook-url
+``
+
+- You're now ready to send your slashbot live.
+ 
+Run `git push heroku` from your repo. When it completes, you'll be ready to add a new web process.
+
+Run `heroku ps:scale web=1` - this tells heroku to create 1 web process (heroku's free tier), running your robot.
+
+Your bot should now be live in your slack room! If you have trouble talking to it, make sure it was able to start properly by running `heroku logs`. You can watch the logs live by running `heroku logs -t`.
+
+When you make changes to your bot, commit them back to your fork, and run `git push heroku` and it'll update your heroku bot.
+
+Custom responders
+---
+
+The most powerful part of slashbot is the ability to create responders for it. This example demonstrated 2 responders, the `slashbot-animate` responder and the `slashbot-clever` responder.
+
+There are 2 types of responders, **listeners** and **commands**. Here's a breakdown on each:
+
+**listeners**
+
+---
+
+Listeners are responders that are able to respond to any text a user writes in slack. You could use listeners to pick out key phrases and insert wit, or do something more powerful like translate phrases when they don't appear to be in english. This is very similar to the way hubot responders work.
+
+A listener is a function that receives 2 arguments:
+
+- message : a string message that a user just typed. This is fired every time someone enters something in chat.
+- a callback : this is a standard node callback, with the signature of `err,message`. If you want to respond to the user, you can call this method with a message.
+
+Additionally, if you set a `match` property on the function, it will require this regex to pass before sending the message to the listener.
+
+Here's an example of a basic listener that just posts a link to [lmgtfy](lmgtfy.com) when a person asks how to do something:
+
+```javascript
+
+var lmgtfy = function(message,callback) {
+	var link = 'http://lmgtfy.com/?q=' + encodeURIComponent(message)
+	callback(null,'did you try googling it? ' + link)
+}
+
+// respond if the message starts with "how do I"
+lmgtfy.match = /^how do I /i
+
+module.exports = lmgtfy
+```
+
+Now your bot will respond with snarky lmgtfy links whenever you ask an honest question:
+
+![LMGTFY](http://oi.pxfx.io/image/3F1U283q3b1Q/Image%202015-03-30%20at%207.30.47%20PM.png)
+
+//TODO: cover the `this` context on listeners
+
+
+**commands**
+
 ---
 
 // TODO:

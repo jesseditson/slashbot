@@ -205,7 +205,7 @@ If this name is not taken, heroku will respond with your new domain name. It wil
 
 ```shell
 $ heroku config:add SLASHBOT_TOKENS=slashbot:bot-api-token,slashbot-animate:bot-animate-token SLASHBOT_WEBHOOK_URL=webook-url
-``
+```
 
 - You're now ready to send your slashbot live.
  
